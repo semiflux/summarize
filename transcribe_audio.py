@@ -1,7 +1,7 @@
 import subprocess
 import math
 from pathlib import Path
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 from faster_whisper import WhisperModel
 import json
@@ -54,7 +54,7 @@ def transcribe_audio_parallel(
             chunk_paths.append(chunk_path)
 
         worker_func = partial(transcribe_chunk, model_size=model_size, device=device, compute_type=compute_type)
-        with ProcessPoolExecutor(max_workers=num_workers) as ex:
+        with ThreadPoolExecutor(max_workers=num_workers) as ex:
             for text in ex.map(worker_func, chunk_paths):
                 all_texts.append(text)
 

@@ -43,7 +43,8 @@ def run_pipeline(input_path: Path, work_path: Path):
     if img_files:
         logging.info(f"Found {len(img_files)} image files to copy...")
         for img in img_files:
-            shutil.copy(img, img_dir / img.name)
+            if input_path != work_path:
+                shutil.copy(img, img_dir / img.name)
     else:
         logging.info("No image files found.")
 
@@ -66,7 +67,8 @@ def run_pipeline(input_path: Path, work_path: Path):
     if text_files:
         logging.info(f"Found {len(text_files)} text files to copy...")
         for txt in text_files:
-            shutil.copy(txt, transcript_dir / txt.name)
+            if input_path != work_path:
+                shutil.copy(txt, transcript_dir / txt.name)
     else:
         logging.info("No text files found.")
 
