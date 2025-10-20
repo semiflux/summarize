@@ -1,5 +1,6 @@
 import fitz
 from pathlib import Path
+import re
 
 def render_pdf_to_images(
     input_path: Path,
@@ -16,9 +17,10 @@ def render_pdf_to_images(
     start_page = page_from - 1 if page_from else 0
     end_page = page_to if page_to else total_pages
 
+    safe_stem = re.sub(r'[^a-zA-Z0-9_-]+', '_', input_path.stem)
     for i, page_number in enumerate(range(start_page, end_page), start=start_index):
         page = doc[page_number]
-        filename = f"page{i:04d}_{input_path.stem}.png"
+        filename = f"{safe_stem}_page{i:04d}_{input_path.stem}.png"
         page.get_pixmap(dpi=dpi, alpha=False).save(str(output_path / filename))
         count += 1
 
