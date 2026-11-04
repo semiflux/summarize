@@ -1,0 +1,10 @@
+# Optional: local transcription engine (faster-whisper).
+# Install only if you use --transcribe / the UI "transcribe locally" toggle.
+# First transcription run downloads the model (~1.6 GB for large-v3-turbo).
+#
+# NVIDIA / CPU: this is all you need (auto-detects the GPU).
+# AMD (ROCm): replace the CUDA-only ctranslate2 wheel with the official ROCm one
+#   -- see README "AMD GPU (ROCm)" and scripts/install_ct2_rocm.sh.
+faster-whisper>=1.1
+# Pinned: newer av removed the metadata_errors kwarg faster-whisper 1.2.x passes.
+av==15.1.0

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lesson Summarizer</title>
+<link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+<main>
+<h1>Lesson Summarizer</h1>
+<p class="sub">Dump slides, photos, audio, video, text — audio/video is transcribed locally, everything becomes lecture notes.</p>
+
+<section class="card">
+<label>LLM API key <span id="keyHint"></span></label>
+<input id="apiKey" type="password" placeholder="sk-or-… (or set LLM_API_KEY on server)" autocomplete="off"/>
+<div class="row">
+<div><label>Model</label>
+<select id="model">
+<option value="nvidia/nemotron-3-ultra-550b-a55b:free" selected>Nemotron 3 Ultra (free · tested best free)</option>
+<option value="dots-studio/dots-3-note-preview:free">Dots 3 Note (free)</option>
+<option value="qwen/qwen3.8-flash">Qwen 3.8 Flash (~1¢ · best cheap Italian)</option>
+<option value="z-ai/glm-5.3-flash">GLM 5.3 Flash (~1¢ · huge output)</option>
+<option value="deepseek/deepseek-v4.1-flash">DeepSeek V4.1 Flash (cheapest output)</option>
+<option value="mistralai/mistral-large-4-0">Mistral Large 4 (~5¢ · best Italian)</option>
+<option value="moonshotai/kimi-k2.6">Kimi K2.6 (~6¢ · long-form)</option>
+<option value="google/gemini-3.5-flash">Gemini 3.5 Flash (~10¢ · via OpenRouter)</option>
+<option value="custom">Custom model id…</option>
+</select>
+<input id="modelCustom" type="text" class="hidden" placeholder="e.g. openai/gpt-5.4-mini" style="margin-top:6px"/></div>
+<div><label>Output language</label>
+<select id="language">
+<option value="auto" selected>auto (from sources)</option>
+<option value="it">italiano</option>
+<option value="en">english</option>
+</select></div>
+<div><label>Temperature</label>
+<input id="temperature" type="number" min="0" max="1" step="0.05" value="0.2"/></div>
+<div><label>Reasoning</label>
+<select id="reasoning" title="Reasoning level for reasoning-capable models (OpenRouter `reasoning` param)">
+<option value="" selected>default</option>
+<option value="low">low</option>
+<option value="medium">medium</option>
+<option value="high">high</option>
+<option value="off">off</option>
+</select>
+<input id="reasoningMax" type="number" min="0" step="1024" value="65536" style="margin-top:6px" title="Hard ceiling on reasoning tokens (0 = no ceiling: send raw effort levels)"/>
+<p class="hint">Ignored by non-reasoning models. Level picks a thinking budget, clamped to the token cap — a cap stops runaway thinking that can otherwise empty the output. Trace saved as reasoning.md; billed as output tokens.</p></div>
+<div><label>Base URL</label>
+<input id="baseUrl" type="text" value="https://openrouter.ai/api/v1" title="OpenAI-compatible endpoint"/></div>
+</div>
+</section>
+
+<section class="card" id="drop">
+<strong>Drop files here or</strong>
+<label class="btn"><input id="files" type="file" multiple hidden/> choose files</label>
+<div id="fileList"></div>
+<p class="hint">pdf · png jpg webp · mp3 wav m4a ogg opus flac · mp4 mov webm mkv · txt md srt vtt csv</p>
+<div style="text-align:left"><label>Primary sources</label>
+<select id="srcMode">
+<option value="auto" selected>Auto — model decides from content</option>
+<option value="manual">Manual — I tick them below</option>
+</select>
+<p class="hint">Tick the files carrying the professor's lesson (audio, video, transcript…). Unticked files are used as integrative material only.</p></div>
+<div style="text-align:left;margin-top:8px"><label>Transcript language</label>
+<select id="transcribe_lang" style="width:auto">
+<option value="auto" selected>lang: auto</option>
+<option value="it">lang: it</option>
+<option value="en">lang: en</option>
+</select>
+<label style="margin-left:10px"><input id="transcribe" type="checkbox" checked style="width:auto"/> transcribe audio/video</label>
+<p class="hint">Local faster-whisper<span id="txEngine"></span> (needs requirements-transcribe.txt). Uncheck only with screenshots on — otherwise nothing is left to send.</p></div>
+<div style="text-align:left;margin-top:8px"><label>Video screenshots (fps, 0 = off)</label>
+<input id="shots" type="number" min="0" max="1" step="0.02" value="0" title="Extract frames as photos at this fps, on top of the transcript. Near-duplicate frames auto-dropped, capped at 200/video."/>
+<p class="hint">Frames are <em>added</em> to the transcript (not a replacement). Near-duplicate frames auto-dropped, capped at 200/video. Needs ffmpeg.</p></div>
+<div style="text-align:left;margin-top:8px"><label>PDFs</label>
+<select id="pdfMode" style="width:auto" title="How PDFs reach the model">
+<option value="images" selected>render pages to images (portable, keeps slides)</option>
+<option value="file">send whole PDF as a file</option>
+</select>
+<select id="pdfEngine" style="width:auto;margin-left:6px" title="OpenRouter PDF parsing engine (file mode only)">
+<option value="auto" selected>engine: auto</option>
+<option value="native">native</option>
+<option value="mistral-ocr">mistral-ocr (paid/page)</option>
+<option value="cloudflare-ai">cloudflare-ai (free)</option>
+</select>
+<p class="hint">File mode lets the provider parse the PDF (OpenRouter/OpenAI) — cheaper for text-heavy docs, but OCR fallbacks may drop slide figures. Image mode works with any vision model.</p></div>
+<button id="go" class="btn primary">Summarize → LaTeX PDF</button>
+<label style="margin-left:8px"><input id="tonly" type="checkbox" style="width:auto"/> transcription only (.txt, skip notes)</label>
+</section>
+
+<section class="card hidden" id="jobCard">
+<h2>Job <code id="jobId"></code></h2>
+<p>Status: <strong id="status">queued</strong></p>
+<p id="usage" class="hint">tokens: —</p>
+<div id="downloads"></div>
+<button id="fix" class="btn hidden">Retry LaTeX fix</button>
+<h3>Compile errors</h3>
+<pre id="compileErrors">—</pre>
+<h3>Log</h3>
+<pre id="log"></pre>
+<h3>.tex preview</h3>
+<pre id="texPreview">waiting…</pre>
+</section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

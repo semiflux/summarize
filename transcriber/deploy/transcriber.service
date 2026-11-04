@@ -1,0 +1,27 @@
+[Unit]
+Description=Transcriber — local faster-whisper HTTP service
+Documentation=file:%h/summarize2/transcriber/README.md
+# User service (no root): it runs as you, so the AMD GPU groups and the
+# Hugging Face model cache in $HOME are available. Runtime settings (HOST, PORT,
+# DATA_DIR, ...) come from the project's .env — see README "systemd".
+# The three absolute paths below assume this checkout; adjust them if you
+# cloned the repo elsewhere.
+#
+# StartLimitIntervalSec=0 disables restart rate-limiting: if the HOST address
+# is not up yet at boot, the bind fails and systemd simply keeps retrying until
+# it succeeds.
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=%h/summarize2/transcriber
+Environment=PYTHONUNBUFFERED=1
+ExecStart=%h/summarize2/transcriber/.venv/bin/python -m app.main
+Restart=always
+RestartSec=5
+# Uvicorn shuts down gracefully on SIGINT (lets in-flight work finish).
+KillSignal=SIGINT
+TimeoutStopSec=20
+
+[Install]
+WantedBy=default.target

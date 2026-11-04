@@ -1,0 +1,6 @@
+faster-whisper>=1.1
+# Pinned: newer av removed the metadata_errors kwarg faster-whisper 1.2.x passes.
+av==15.1.0
+# AMD GPU (ROCm): the PyPI ctranslate2 wheel is CUDA-only. Swap it for the
+# official ROCm wheel after installing these:
+#   PYTHON=.venv/bin/python scripts/install_ct2_rocm.sh

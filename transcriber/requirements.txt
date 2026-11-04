@@ -1,0 +1,7 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.12
+python-dotenv>=1.0
+# Cross-process lock so concurrent transcriptions queue instead of fighting
+# over one GPU (a GPU memory fault is process-fatal).
+filelock>=3.13

@@ -1,0 +1,15 @@
+body{font-family:system-ui,sans-serif;background:#111;color:#eee;margin:0}
+main{max-width:760px;margin:0 auto;padding:24px}
+.sub{color:#aaa}
+.card{background:#1c1c1c;border:1px solid #333;border-radius:12px;padding:16px;margin:16px 0}
+label{display:block;margin:8px 0 4px;color:#bbb;font-size:14px}
+input,select{width:100%;padding:8px;border-radius:8px;border:1px solid #444;background:#222;color:#eee;box-sizing:border-box}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.btn{display:inline-block;background:#333;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;border:0;margin-top:12px}
+.btn.primary{background:#2f6fed}
+#drop{border-style:dashed;text-align:center}
+#fileList{text-align:left;margin-top:8px;font-size:14px;color:#ccc}
+.hint{font-size:12px;color:#888}
+pre{background:#0d0d0d;padding:12px;border-radius:8px;overflow:auto;max-height:300px;white-space:pre-wrap}
+.hidden{display:none}
+#downloads a{display:inline-block;margin:6px 8px 0 0;color:#8ab4ff}
