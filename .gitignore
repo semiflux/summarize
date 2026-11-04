@@ -1,2 +1,28 @@
-__pycache__
-.idea
+# --- secrets -------------------------------------------------------------
+# Never commit real keys. Examples/templates are fine.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# --- python --------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- pipeline runtime data / generated artifacts -------------------------
+data/
+transcripts/
+work/
+output/
+audio/
+images/
+latex/
+
+# --- editors / OS --------------------------------------------------------
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
